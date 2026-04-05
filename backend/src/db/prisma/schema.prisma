@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id           String         @id @default(uuid())
+  email        String         @unique
+  name         String?
+  password     String
+  role         Role           @default(VIEWER)
+  status       Status         @default(ACTIVE)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  transactions Transactions[]
+  auditLogs    AuditLogs[]
+}
+
+model Transactions {
+  id          String    @id @default(uuid())
+  amount      Float
+  type        Type  
+  category    Category
+  description String?
+  date        DateTime
+  userId      String
+  user        Users     @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model AuditLogs {
+  id        String      @id @default(uuid())
+  userId    String
+  user      Users       @relation(fields: [userId], references: [id])
+  action    AuditAction
+  entity    AuditEntity
+  entityId  String
+  createdAt DateTime    @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+// user roles enum
+enum Role {
+  ADMIN
+  ANALYST
+  VIEWER
+}
+
+// user status enum 
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+// Transaction type enum 
+enum Type {
+  INCOME
+  EXPENSE
+}
+
+// Transaction category enum
+enum Category {
+  // EXPENSE categories
+  SALARY
+  RENT
+  UTILITIES
+  MARKETING
+  TRAVEL
+  FOOD
+  SOFTWARE
+  EQUIPMENT
+  TAX
+
+  // INCOME categories
+  SALES
+  CONSULTING
+  INVESTMENT
+  REFUND
+  INTEREST
+
+  // fallback
+  OTHER
+}
+
+enum AuditAction {
+  // Transaction actions
+  CREATE_TRANSACTION
+  UPDATE_TRANSACTION
+  DELETE_TRANSACTION
+
+  // User actions
+  CREATE_USER
+  UPDATE_USER
+  DELETE_USER
+
+  USER_ROLE_CHANGE
+  USER_STATUS_CHANGE
+
+  // user status actions
+  ACTIVATE_USER
+  DEACTIVATE_USER
+
+  // role actions
+  ASSIGN_ROLE
+  REMOVE_ROLE
+}
+
+enum AuditEntity {
+  TRANSACTION
+  USER
+}
