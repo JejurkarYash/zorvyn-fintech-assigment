@@ -9,10 +9,8 @@ import transactionRoutes from "./modules/transactions/transaction.routes";
 import transactoinsRoutesPublic from "./modules/transactions/transaction.routes.public";
 import dashboardRoutes from "./modules/dashboard/dashbaord.routes";
 dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
-
 app.use(cors());
 app.use(express.json());
 
